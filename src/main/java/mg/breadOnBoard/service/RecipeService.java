@@ -22,7 +22,9 @@ public class RecipeService {
 	
 	public Iterable<Recipe> findAll() {
 		
-		return recipeRepository.findAll();
+		TypedQuery<Recipe> query = entityManager.createQuery("SELECT r FROM Recipe r ORDER BY r.id ASC", Recipe.class);
+		
+		return query.getResultList();
 		
 	}
 	
