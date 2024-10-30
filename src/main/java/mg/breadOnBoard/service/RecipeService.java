@@ -20,6 +20,9 @@ public class RecipeService {
 	@PersistenceContext
 	private EntityManager entityManager;
 	
+	@Autowired
+	private SequenceService sequenceService;
+	
 	public Iterable<Recipe> findAll() {
 		
 		TypedQuery<Recipe> query = entityManager.createQuery("SELECT r FROM Recipe r ORDER BY r.id ASC", Recipe.class);
@@ -50,10 +53,12 @@ public class RecipeService {
 	
 	public Recipe save(Recipe recipe) {
 		
-		// il faut modifier cette methode pour ajouter l'upload de l'image de la recette
-		// et la suppression de l'ancienne image si c'est une modification
-		
-		return recipeRepository.save(recipe);
+		if(recipe.getId() == null) {
+			
+			String id = sequenceService.generateRecipeID();
+			recipe.setId(id);
+			
+		} return recipeRepository.save(recipe);
 		
 	}
 	
