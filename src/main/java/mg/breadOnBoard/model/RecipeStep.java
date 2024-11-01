@@ -11,7 +11,7 @@ public class RecipeStep {
 	
 	public static final String PREFIX = "S";
 	
-	public static final int LENGTH_ID = 7;
+	public static final int LENGTH_ID = 6;
 	
 	// ATTRIBUTES :
 	

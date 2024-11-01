@@ -20,6 +20,9 @@ public class RecipeStepService {
 	@PersistenceContext
 	private EntityManager entityManager;
 	
+	@Autowired
+	private SequenceService sequenceService;
+	
 	public Iterable<RecipeStep> findAllByRecipeId(String recipeId) {
 		
 		TypedQuery<RecipeStep> query = entityManager.createQuery("SELECT rs FROM RecipeStep rs WHERE rs.recipeId = :recipe", RecipeStep.class);
@@ -42,7 +45,23 @@ public class RecipeStepService {
 	
 	public RecipeStep save(RecipeStep step) {
 		
-		return recipeStepRepository.save(step);
+		if(step.getId() == null) {
+			
+			String id = sequenceService.generateRecipeStepID();
+			step.setId(id);
+			
+		} return recipeStepRepository.save(step);
+		
+	}
+	
+	public void saveAll(String recipeId, Iterable<RecipeStep> steps) {
+		
+		for(RecipeStep step : steps) {
+			
+			step.setRecipeId(recipeId);
+			this.save(step);
+			
+		}
 		
 	}
 	
