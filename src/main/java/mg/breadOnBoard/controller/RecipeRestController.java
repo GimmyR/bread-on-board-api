@@ -48,6 +48,13 @@ public class RecipeRestController {
 		
 	}
 	
+	@PostMapping("/api/recipe/search/")
+	public Iterable<Recipe> search(@RequestParam String search) {
+		
+		return recipeService.findAllByTitleOrIngredients(search);
+		
+	}
+	
 	@GetMapping("/api/recipe/get-one/{id}")
 	public ResponseEntity<Recipe> getOne(@PathVariable String id) {
 		

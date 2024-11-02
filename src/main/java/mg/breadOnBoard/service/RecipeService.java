@@ -40,6 +40,16 @@ public class RecipeService {
 		
 	}
 	
+	public Iterable<Recipe> findAllByTitleOrIngredients(String search) {
+		
+		TypedQuery<Recipe> query = entityManager.createQuery("SELECT r FROM Recipe r WHERE r.title LIKE ?1 OR r.ingredients LIKE ?2 ORDER BY r.id ASC", Recipe.class);
+		query.setParameter(1, "%" + search + "%");
+		query.setParameter(2, "%" + search + "%");
+		
+		return query.getResultList();
+		
+	}
+	
 	public Recipe findOneById(String id) throws RecipeNotFoundException {
 		
 		Optional<Recipe> opt = recipeRepository.findById(id);
