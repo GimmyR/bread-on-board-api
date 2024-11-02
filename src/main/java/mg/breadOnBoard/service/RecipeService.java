@@ -51,6 +51,16 @@ public class RecipeService {
 		
 	}
 	
+	public Recipe findByIdAndAccountId(String id, String accountId) {
+		
+		TypedQuery<Recipe> query = entityManager.createQuery("SELECT r FROM Recipe r WHERE r.id = :id AND r.accountId = :account", Recipe.class);
+		query.setParameter("id", id);
+		query.setParameter("account", accountId);
+		
+		return query.getSingleResult();
+		
+	}
+	
 	public Recipe save(Recipe recipe) {
 		
 		if(recipe.getId() == null) {

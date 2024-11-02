@@ -18,7 +18,7 @@ import mg.breadOnBoard.service.SessionService;
 
 @RestController
 @CrossOrigin
-public class AccountController {
+public class AccountRestController {
 	
 	@Autowired
 	private AccountService accountService;
@@ -56,13 +56,9 @@ public class AccountController {
 			Account account = accountService.findById(session.getAccountId());
 			response = new ResponseEntity<String>(account.getUsername(), HttpStatus.OK);
 			
-		} catch (SessionNotFoundException e) {
+		} catch (SessionNotFoundException | AccountNotFoundException e) {
 
 			response = new ResponseEntity<String>("Session introuvable !", HttpStatus.NOT_FOUND);
-			
-		} catch (AccountNotFoundException e) {
-			
-			response = new ResponseEntity<String>("Compte introuvable !", HttpStatus.NOT_FOUND);
 			
 		} return response;
 		
