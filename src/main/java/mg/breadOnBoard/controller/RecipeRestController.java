@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.persistence.NoResultException;
 import mg.breadOnBoard.model.Account;
 import mg.breadOnBoard.model.Recipe;
 import mg.breadOnBoard.model.Session;
@@ -102,6 +103,52 @@ public class RecipeRestController {
 			response = new ResponseEntity<String>("Session introuvable !", HttpStatus.NOT_FOUND);
 			
 		} return response;
+		
+	}
+	
+	@PostMapping("/api/recipe/edit/{id}")
+	public ResponseEntity<String> edit(@PathVariable String id, @RequestParam String token, @RequestParam String title, @RequestParam MultipartFile image, @RequestParam String ingredients) {
+		
+		ResponseEntity<String> response = null;
+		Recipe recipe = new Recipe();
+		
+		try {
+			
+			recipe = this.tryToEdit(recipe, token, id, title, image, ingredients);
+			return new ResponseEntity<String>(recipe.getId(), HttpStatus.OK);
+			
+		} catch (FileIsEmptyException | IOException e) {
+
+			response = new ResponseEntity<String>(recipe.getId(), HttpStatus.INTERNAL_SERVER_ERROR);
+			
+		} catch (SessionNotFoundException | AccountNotFoundException e) {
+
+			response = new ResponseEntity<String>("Session introuvable !", HttpStatus.NOT_FOUND);
+			
+		} catch (NoResultException e) {
+
+			response = new ResponseEntity<String>("Recette introuvable !", HttpStatus.NOT_FOUND);
+			
+		} return response;
+		
+	}
+	
+	private Recipe tryToEdit(Recipe recipe, String token, String id, String title, MultipartFile image, String ingredients) throws SessionNotFoundException, AccountNotFoundException, FileIsEmptyException, IOException {
+		
+		Session session = sessionService.findById(token);
+		Account account = accountService.findById(session.getAccountId());
+		recipe = recipeService.findByIdAndAccountId(id, account.getId());
+		recipe.setTitle(title);
+		recipe.setIngredients(ingredients);
+		
+		if(!image.getOriginalFilename().equals(recipe.getImage())) {
+
+			String oldImage = recipe.getImage();
+			recipe.setImage(image.getOriginalFilename());
+			imageService.upload(image);
+			imageService.delete(oldImage);
+			
+		} return recipeService.save(recipe);
 		
 	}
 

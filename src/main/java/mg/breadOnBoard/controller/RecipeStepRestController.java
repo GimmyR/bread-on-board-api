@@ -59,10 +59,6 @@ public class RecipeStepRestController {
 			
 			response = new ResponseEntity<String>("Recette introuvable !", HttpStatus.NOT_FOUND);
 			
-		} catch (Exception e) {
-			
-			response = new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-			
 		} return response;
 		
 	}

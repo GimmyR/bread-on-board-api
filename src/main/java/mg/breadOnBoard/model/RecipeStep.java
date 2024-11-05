@@ -21,6 +21,9 @@ public class RecipeStep {
 	@Column(name = "recipe_id")
 	private String recipeId;
 	
+	@Column(name = "step_order")
+	private int order;
+	
 	private String text;
 	
 	// GETTERS AND SETTERS :
@@ -39,6 +42,14 @@ public class RecipeStep {
 	
 	public void setRecipeId(String recipeId) {
 		this.recipeId = recipeId;
+	}
+	
+	public int getOrder() {
+		return order;
+	}
+	
+	public void setOrder(int order) {
+		this.order = order;
 	}
 	
 	public String getText() {

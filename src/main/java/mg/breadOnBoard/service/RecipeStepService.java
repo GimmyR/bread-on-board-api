@@ -25,7 +25,7 @@ public class RecipeStepService {
 	
 	public Iterable<RecipeStep> findAllByRecipeId(String recipeId) {
 		
-		TypedQuery<RecipeStep> query = entityManager.createQuery("SELECT rs FROM RecipeStep rs WHERE rs.recipeId = :recipe", RecipeStep.class);
+		TypedQuery<RecipeStep> query = entityManager.createQuery("SELECT rs FROM RecipeStep rs WHERE rs.recipeId = :recipe ORDER BY rs.id ASC", RecipeStep.class);
 		query.setParameter("recipe", recipeId);
 		
 		return query.getResultList();
@@ -56,10 +56,14 @@ public class RecipeStepService {
 	
 	public void saveAll(String recipeId, Iterable<RecipeStep> steps) {
 		
+		int order = 1;
+		
 		for(RecipeStep step : steps) {
 			
+			step.setOrder(order);
 			step.setRecipeId(recipeId);
 			this.save(step);
+			order++;
 			
 		}
 		
