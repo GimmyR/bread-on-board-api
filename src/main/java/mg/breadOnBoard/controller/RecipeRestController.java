@@ -23,6 +23,7 @@ import mg.breadOnBoard.service.FileIsEmptyException;
 import mg.breadOnBoard.service.ImageService;
 import mg.breadOnBoard.service.RecipeNotFoundException;
 import mg.breadOnBoard.service.RecipeService;
+import mg.breadOnBoard.service.RecipeStepService;
 import mg.breadOnBoard.service.SessionNotFoundException;
 import mg.breadOnBoard.service.SessionService;
 
@@ -32,6 +33,9 @@ public class RecipeRestController {
 	
 	@Autowired
 	private RecipeService recipeService;
+	
+	@Autowired
+	private RecipeStepService recipeStepService;
 	
 	@Autowired
 	private ImageService imageService;
@@ -149,6 +153,37 @@ public class RecipeRestController {
 			imageService.delete(oldImage);
 			
 		} return recipeService.save(recipe);
+		
+	}
+	
+	@PostMapping("/api/recipe/delete/{id}")
+	public ResponseEntity<String> delete(@PathVariable String id, @RequestParam String token) {
+		
+		ResponseEntity<String> response = null;
+		
+		try {
+				
+			Session session = sessionService.findById(token);
+			Account account = accountService.findById(session.getAccountId());
+			Recipe recipe = recipeService.findByIdAndAccountId(id, account.getId());
+			recipeStepService.deleteAllByRecipeId(id);
+			recipeService.delete(recipe);
+			imageService.delete(recipe.getImage());
+			response = new ResponseEntity<String>("La recette a bien été supprimée !", HttpStatus.OK);
+		
+		} catch (SessionNotFoundException | AccountNotFoundException e) {
+
+			response = new ResponseEntity<String>("Vous n'êtes pas connecté !", HttpStatus.NOT_FOUND);
+			
+		} catch(NoResultException e) {
+			
+			response = new ResponseEntity<String>("Votre recette est introuvable !", HttpStatus.NOT_FOUND);
+			
+		} catch (IOException e) {
+			
+			response = new ResponseEntity<String>("L'image de la recette est introuvable !", HttpStatus.NOT_FOUND);
+			
+		} return response;
 		
 	}
 

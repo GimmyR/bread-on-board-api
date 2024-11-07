@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
+import jakarta.transaction.Transactional;
 import mg.breadOnBoard.model.RecipeStep;
 import mg.breadOnBoard.repository.RecipeStepRepository;
 
@@ -72,6 +74,15 @@ public class RecipeStepService {
 	public void delete(RecipeStep step) {
 		
 		recipeStepRepository.delete(step);
+		
+	}
+	
+	@Transactional
+	public void deleteAllByRecipeId(String recipeId) {
+		
+		Query query = entityManager.createQuery("DELETE FROM RecipeStep rs WHERE rs.recipeId = :recipeId");
+		query.setParameter("recipeId", recipeId);
+		query.executeUpdate();
 		
 	}
 
