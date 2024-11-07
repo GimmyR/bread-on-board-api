@@ -186,5 +186,25 @@ public class RecipeRestController {
 		} return response;
 		
 	}
+	
+	@PostMapping("/api/recipe/author/{id}")
+	public ResponseEntity<Boolean> isAuthor(@PathVariable String id, @RequestParam String token) {
+		
+		ResponseEntity<Boolean> response = null;
+		
+		try {
+		
+			Session session = sessionService.findById(token);
+			Account account = accountService.findById(session.getAccountId());
+			recipeService.findByIdAndAccountId(id, account.getId());
+			response = new ResponseEntity<Boolean>(true, HttpStatus.OK);
+			
+		} catch(SessionNotFoundException | AccountNotFoundException | NoResultException e) {
+			
+			response = new ResponseEntity<Boolean>(false, HttpStatus.NOT_FOUND);
+			
+		} return response;
+		
+	}
 
 }
