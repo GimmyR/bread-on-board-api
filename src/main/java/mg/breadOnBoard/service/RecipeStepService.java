@@ -3,13 +3,11 @@ package mg.breadOnBoard.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
-import jakarta.persistence.TypedQuery;
-import jakarta.transaction.Transactional;
 import mg.breadOnBoard.model.RecipeStep;
 import mg.breadOnBoard.repository.RecipeStepRepository;
 
@@ -27,10 +25,7 @@ public class RecipeStepService {
 	
 	public Iterable<RecipeStep> findAllByRecipeId(String recipeId) {
 		
-		TypedQuery<RecipeStep> query = entityManager.createQuery("SELECT rs FROM RecipeStep rs WHERE rs.recipeId = :recipe ORDER BY rs.id ASC", RecipeStep.class);
-		query.setParameter("recipe", recipeId);
-		
-		return query.getResultList();
+		return recipeStepRepository.findAllByRecipeId(recipeId, Sort.by(Sort.Direction.ASC, "order"));
 		
 	}
 	
@@ -77,12 +72,9 @@ public class RecipeStepService {
 		
 	}
 	
-	@Transactional
 	public void deleteAllByRecipeId(String recipeId) {
 		
-		Query query = entityManager.createQuery("DELETE FROM RecipeStep rs WHERE rs.recipeId = :recipeId");
-		query.setParameter("recipeId", recipeId);
-		query.executeUpdate();
+		recipeStepRepository.deleteAllByRecipeId(recipeId);
 		
 	}
 
