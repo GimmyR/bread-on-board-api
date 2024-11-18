@@ -142,6 +142,10 @@ public class RecipeRestController {
 		Session session = sessionService.findById(token);
 		Account account = accountService.findById(session.getAccountId());
 		recipe = recipeService.findByIdAndAccountId(id, account.getId());
+		
+		if(recipe == null)
+			throw new NoResultException();
+		
 		recipe.setTitle(title);
 		recipe.setIngredients(ingredients);
 		
@@ -166,6 +170,10 @@ public class RecipeRestController {
 			Session session = sessionService.findById(token);
 			Account account = accountService.findById(session.getAccountId());
 			Recipe recipe = recipeService.findByIdAndAccountId(id, account.getId());
+			
+			if(recipe == null)
+				throw new NoResultException();
+			
 			recipeStepService.deleteAllByRecipeId(id);
 			recipeService.delete(recipe);
 			imageService.delete(recipe.getImage());
@@ -196,7 +204,11 @@ public class RecipeRestController {
 		
 			Session session = sessionService.findById(token);
 			Account account = accountService.findById(session.getAccountId());
-			recipeService.findByIdAndAccountId(id, account.getId());
+			Recipe recipe = recipeService.findByIdAndAccountId(id, account.getId());
+			
+			if(recipe == null)
+				throw new NoResultException();
+			
 			response = new ResponseEntity<Boolean>(true, HttpStatus.OK);
 			
 		} catch(SessionNotFoundException | AccountNotFoundException | NoResultException e) {

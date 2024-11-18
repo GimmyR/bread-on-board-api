@@ -3,11 +3,8 @@ package mg.breadOnBoard.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import mg.breadOnBoard.model.Recipe;
 import mg.breadOnBoard.repository.RecipeRepository;
 
@@ -17,36 +14,26 @@ public class RecipeService {
 	@Autowired
 	private RecipeRepository recipeRepository;
 	
-	@PersistenceContext
-	private EntityManager entityManager;
-	
 	@Autowired
 	private SequenceService sequenceService;
 	
 	public Iterable<Recipe> findAll() {
 		
-		TypedQuery<Recipe> query = entityManager.createQuery("SELECT r FROM Recipe r ORDER BY r.id ASC", Recipe.class);
-		
-		return query.getResultList();
+		return recipeRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
 		
 	}
 	
 	public Iterable<Recipe> findAllByAccountId(String accountId) {
 		
-		TypedQuery<Recipe> query = entityManager.createQuery("SELECT r FROM Recipe r WHERE r.accountId = :account ORDER BY r.id ASC", Recipe.class);
-		query.setParameter("account", accountId);
-		
-		return query.getResultList();
+		return recipeRepository.findByAccountId(accountId, Sort.by(Sort.Direction.ASC, "accountId"));
 		
 	}
 	
 	public Iterable<Recipe> findAllByTitleOrIngredients(String search) {
 		
-		TypedQuery<Recipe> query = entityManager.createQuery("SELECT r FROM Recipe r WHERE r.title LIKE ?1 OR r.ingredients LIKE ?2 ORDER BY r.id ASC", Recipe.class);
-		query.setParameter(1, "%" + search + "%");
-		query.setParameter(2, "%" + search + "%");
+		String toSearch = "%" + search + "%";
 		
-		return query.getResultList();
+		return recipeRepository.findByTitleLikeOrIngredientsLike(toSearch, toSearch, Sort.by(Sort.Direction.ASC, "id"));
 		
 	}
 	
@@ -63,11 +50,7 @@ public class RecipeService {
 	
 	public Recipe findByIdAndAccountId(String id, String accountId) {
 		
-		TypedQuery<Recipe> query = entityManager.createQuery("SELECT r FROM Recipe r WHERE r.id = :id AND r.accountId = :account", Recipe.class);
-		query.setParameter("id", id);
-		query.setParameter("account", accountId);
-		
-		return query.getSingleResult();
+		return recipeRepository.findOneByIdAndAccountId(id, accountId);
 		
 	}
 	
