@@ -1,24 +1,28 @@
 package mg.breadOnBoard.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
+import jakarta.persistence.NoResultException;
 import mg.breadOnBoard.model.Account;
 import mg.breadOnBoard.repository.AccountRepository;
 
 @Service
+@Transactional
 public class AccountService {
 	
 	@Autowired
 	private AccountRepository accountRepository;
 	
-	@PersistenceContext
-	private EntityManager entityManager;
+	public List<Account> findAll() {
+		
+		return accountRepository.findAll();
+		
+	}
 	
 	public Account findById(String id) throws AccountNotFoundException {
 		
@@ -33,21 +37,23 @@ public class AccountService {
 	
 	public Account findByUsernameAndPassword(String username, String password) {
 		
-		TypedQuery<Account> query = entityManager.createQuery("SELECT a FROM Account a WHERE a.username = :username AND a.password = :password", Account.class);
-		query.setParameter("username", username);
-		query.setParameter("password", password);
+		Account account = accountRepository.findOneByUsernameAndPassword(username, password);
 		
-		return query.getSingleResult();
+		if(account == null)
+			throw new NoResultException();
+		
+		return account;
 		
 	}
 	
 	public Account findByIdAndPassword(String id, String password) {
 		
-		TypedQuery<Account> query = entityManager.createQuery("SELECT a FROM Account a WHERE a.id = :id AND a.password = :password", Account.class);
-		query.setParameter("id", id);
-		query.setParameter("password", password);
+		Account account = accountRepository.findOneByIdAndPassword(id, password);
 		
-		return query.getSingleResult();
+		if(account == null)
+			throw new NoResultException();
+		
+		return account;
 		
 	}
 	
