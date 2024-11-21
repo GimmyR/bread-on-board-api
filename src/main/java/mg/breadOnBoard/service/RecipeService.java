@@ -5,6 +5,8 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import jakarta.persistence.NoResultException;
 import mg.breadOnBoard.model.Recipe;
 import mg.breadOnBoard.repository.RecipeRepository;
 
@@ -50,7 +52,12 @@ public class RecipeService {
 	
 	public Recipe findByIdAndAccountId(String id, String accountId) {
 		
-		return recipeRepository.findOneByIdAndAccountId(id, accountId);
+		Recipe recipe = recipeRepository.findOneByIdAndAccountId(id, accountId);
+		
+		if(recipe == null)
+			throw new NoResultException();
+		
+		return recipe;
 		
 	}
 	

@@ -7,7 +7,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,9 @@ public class AccountService {
 	
 	@Autowired
 	private JwtEncoder jwtEncoder;
+	
+	@Autowired
+	private JwtDecoder jwtDecoder;
 	
 	public List<Account> findAll() {
 		
@@ -91,6 +96,27 @@ public class AccountService {
 		);
 		
 		return jwtEncoder.encode(jwtEncoderParameters).getTokenValue();
+		
+	}
+	
+	public Account getAccountByJWT(String authorization) throws AccountNotFoundException {
+		
+		String username = getUsernameByJWT(authorization);
+		Account account = accountRepository.findOneByUsername(username);
+		
+		if(account == null)
+			throw new AccountNotFoundException();
+		
+		return account;
+		
+	}
+	
+	private String getUsernameByJWT(String authorization) {
+		
+		String jwt = authorization.substring(7);
+		Jwt token = jwtDecoder.decode(jwt);
+		
+		return token.getSubject();
 		
 	}
 

@@ -4,19 +4,9 @@ import mg.breadOnBoard.model.RecipeStep;
 
 public class StepsForm {
 	
-	private String token;
-	
 	private String recipeId;
 	
 	private Iterable<RecipeStep> steps;
-	
-	public String getToken() {
-		return token;
-	}
-	
-	public void setToken(String token) {
-		this.token = token;
-	}
 	
 	public String getRecipeId() {
 		return recipeId;

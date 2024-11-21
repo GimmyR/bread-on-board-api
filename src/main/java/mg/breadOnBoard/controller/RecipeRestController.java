@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -80,15 +81,14 @@ public class RecipeRestController {
 	}
 	
 	@PostMapping("/api/recipe/create")
-	public ResponseEntity<String> create(@RequestParam String token, @RequestParam String title, @RequestParam MultipartFile image, @RequestParam String ingredients) {
+	public ResponseEntity<String> create(@RequestHeader("Authorization") String authorization, @RequestParam String title, @RequestParam MultipartFile image, @RequestParam String ingredients) {
 		
 		ResponseEntity<String> response = null;
 		Recipe recipe = new Recipe();
 		
 		try {
 			
-			Session session = sessionService.findById(token);
-			Account account = accountService.findById(session.getAccountId());
+			Account account = accountService.getAccountByJWT(authorization);
 			recipe.setAccountId(account.getId());
 			recipe.setTitle(title);
 			recipe.setImage(image.getOriginalFilename());
@@ -102,9 +102,9 @@ public class RecipeRestController {
 
 			response = new ResponseEntity<String>(recipe.getId(), HttpStatus.INTERNAL_SERVER_ERROR);
 			
-		} catch (SessionNotFoundException | AccountNotFoundException e) {
+		} catch (AccountNotFoundException e) {
 
-			response = new ResponseEntity<String>("Session introuvable !", HttpStatus.NOT_FOUND);
+			response = new ResponseEntity<String>("Compte introuvable !", HttpStatus.NOT_FOUND);
 			
 		} return response;
 		

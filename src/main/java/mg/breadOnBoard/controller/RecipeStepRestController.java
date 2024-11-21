@@ -8,16 +8,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.persistence.NoResultException;
+import mg.breadOnBoard.model.Account;
 import mg.breadOnBoard.model.Recipe;
 import mg.breadOnBoard.model.RecipeStep;
-import mg.breadOnBoard.model.Session;
+import mg.breadOnBoard.service.AccountNotFoundException;
+import mg.breadOnBoard.service.AccountService;
 import mg.breadOnBoard.service.RecipeService;
 import mg.breadOnBoard.service.RecipeStepService;
-import mg.breadOnBoard.service.SessionNotFoundException;
-import mg.breadOnBoard.service.SessionService;
 
 @RestController
 @CrossOrigin
@@ -27,7 +28,7 @@ public class RecipeStepRestController {
 	private RecipeStepService recipeStepService;
 	
 	@Autowired
-	private SessionService sessionService;
+	private AccountService accountService;
 	
 	@Autowired
 	private RecipeService recipeService;
@@ -40,20 +41,20 @@ public class RecipeStepRestController {
 	}
 	
 	@PostMapping("/api/recipe-step/save-all")
-	public ResponseEntity<String> saveAll(@RequestBody StepsForm body) {
+	public ResponseEntity<String> saveAll(@RequestHeader("Authorization") String authorization, @RequestBody StepsForm body) {
 		
 		ResponseEntity<String> response = null;
 		
 		try {
 			
-			Session session = sessionService.findById(body.getToken());
-			Recipe recipe = recipeService.findByIdAndAccountId(body.getRecipeId(), session.getAccountId());
+			Account account = accountService.getAccountByJWT(authorization);
+			Recipe recipe = recipeService.findByIdAndAccountId(body.getRecipeId(), account.getId());
 			recipeStepService.saveAll(recipe.getId(), body.getSteps());
 			response = new ResponseEntity<String>(body.getRecipeId(), HttpStatus.OK);
 		
-		} catch (SessionNotFoundException e) {
+		} catch (AccountNotFoundException e) {
 			
-			response = new ResponseEntity<String>("Session introuvable !", HttpStatus.NOT_FOUND);
+			response = new ResponseEntity<String>("Compte introuvable !", HttpStatus.NOT_FOUND);
 			
 		} catch (NoResultException e) {
 			
