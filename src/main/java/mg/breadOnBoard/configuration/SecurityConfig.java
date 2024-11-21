@@ -38,8 +38,15 @@ public class SecurityConfig {
 
         return http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         			.csrf(csrf -> csrf.disable())
-        			.authorizeHttpRequests(authorize -> authorize.requestMatchers("/api/account/log-in").permitAll())
-					.authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
+        			.authorizeHttpRequests(
+        					authorize -> authorize.requestMatchers(
+        							"/api/recipe/create", 
+        							"/api/recipe/edit/**", 
+        							"/api/recipe/delete/**", 
+        							"/api/recipe/author/**", 
+        							"/api/recipe-step/save-all")
+        						.authenticated())
+					.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
 					.userDetailsService(userDetailsService)
 					.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
 					.build();
