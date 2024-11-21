@@ -1,18 +1,11 @@
 package mg.breadOnBoard.controller;
 
-import java.time.Instant;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jwt.JwsHeader;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,9 +26,6 @@ public class AccountRestController {
 	private AuthenticationManager authenticationManager;
 	
 	@Autowired
-	private JwtEncoder jwtEncoder;
-	
-	@Autowired
 	private AccountService accountService;
 	
 	@Autowired
@@ -49,17 +39,7 @@ public class AccountRestController {
 		try {
 		
 			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-			JwtClaimsSet payload = JwtClaimsSet.builder()
-					.issuedAt(Instant.now())
-					.subject(username)
-					.build();
-			JwtEncoderParameters jwtEncoderParameters = JwtEncoderParameters.from(
-					JwsHeader.with(MacAlgorithm.HS512).build(), 
-					payload
-			);
-			
-			String token = jwtEncoder.encode(jwtEncoderParameters).getTokenValue();
-			response = new ResponseEntity<String>(token, HttpStatus.OK);
+			response = new ResponseEntity<String>(accountService.generateJWT(username), HttpStatus.OK);
 		
 		} catch(AuthenticationException e) {
 			

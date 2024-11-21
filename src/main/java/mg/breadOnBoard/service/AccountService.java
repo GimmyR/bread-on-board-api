@@ -1,9 +1,15 @@
 package mg.breadOnBoard.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +23,9 @@ public class AccountService {
 	
 	@Autowired
 	private AccountRepository accountRepository;
+	
+	@Autowired
+	private JwtEncoder jwtEncoder;
 	
 	public List<Account> findAll() {
 		
@@ -66,6 +75,22 @@ public class AccountService {
 	public void delete(Account account) {
 		
 		accountRepository.delete(account);
+		
+	}
+	
+	public String generateJWT(String username) {
+		
+		JwtClaimsSet payload = JwtClaimsSet.builder()
+				.issuedAt(Instant.now())
+				.subject(username)
+				.build();
+		
+		JwtEncoderParameters jwtEncoderParameters = JwtEncoderParameters.from(
+				JwsHeader.with(MacAlgorithm.HS512).build(), 
+				payload
+		);
+		
+		return jwtEncoder.encode(jwtEncoderParameters).getTokenValue();
 		
 	}
 
