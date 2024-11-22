@@ -5,10 +5,13 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import mg.breadOnBoard.model.RecipeStep;
 import mg.breadOnBoard.repository.RecipeStepRepository;
 
 @Service
+@Transactional
 public class RecipeStepService {
 	
 	@Autowired

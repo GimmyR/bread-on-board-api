@@ -17,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.persistence.NoResultException;
 import mg.breadOnBoard.model.Account;
 import mg.breadOnBoard.model.Recipe;
-import mg.breadOnBoard.model.Session;
 import mg.breadOnBoard.service.AccountNotFoundException;
 import mg.breadOnBoard.service.AccountService;
 import mg.breadOnBoard.service.FileIsEmptyException;
@@ -25,8 +24,6 @@ import mg.breadOnBoard.service.ImageService;
 import mg.breadOnBoard.service.RecipeNotFoundException;
 import mg.breadOnBoard.service.RecipeService;
 import mg.breadOnBoard.service.RecipeStepService;
-import mg.breadOnBoard.service.SessionNotFoundException;
-import mg.breadOnBoard.service.SessionService;
 
 @RestController
 @CrossOrigin
@@ -40,9 +37,6 @@ public class RecipeRestController {
 	
 	@Autowired
 	private ImageService imageService;
-	
-	@Autowired
-	private SessionService sessionService;
 	
 	@Autowired
 	private AccountService accountService;
@@ -111,21 +105,21 @@ public class RecipeRestController {
 	}
 	
 	@PostMapping("/api/recipe/edit/{id}")
-	public ResponseEntity<String> edit(@PathVariable String id, @RequestParam String token, @RequestParam String title, @RequestParam MultipartFile image, @RequestParam String ingredients) {
+	public ResponseEntity<String> edit(@RequestHeader("Authorization") String authorization, @PathVariable String id, @RequestParam String title, @RequestParam MultipartFile image, @RequestParam String ingredients) {
 		
 		ResponseEntity<String> response = null;
 		Recipe recipe = new Recipe();
 		
 		try {
 			
-			recipe = this.tryToEdit(recipe, token, id, title, image, ingredients);
+			recipe = this.tryToEdit(authorization, recipe, id, title, image, ingredients);
 			return new ResponseEntity<String>(recipe.getId(), HttpStatus.OK);
 			
 		} catch (FileIsEmptyException | IOException e) {
 
 			response = new ResponseEntity<String>(recipe.getId(), HttpStatus.INTERNAL_SERVER_ERROR);
 			
-		} catch (SessionNotFoundException | AccountNotFoundException e) {
+		} catch (AccountNotFoundException e) {
 
 			response = new ResponseEntity<String>("Session introuvable !", HttpStatus.NOT_FOUND);
 			
@@ -137,15 +131,10 @@ public class RecipeRestController {
 		
 	}
 	
-	private Recipe tryToEdit(Recipe recipe, String token, String id, String title, MultipartFile image, String ingredients) throws SessionNotFoundException, AccountNotFoundException, FileIsEmptyException, IOException {
+	private Recipe tryToEdit(String authorization, Recipe recipe, String id, String title, MultipartFile image, String ingredients) throws AccountNotFoundException, FileIsEmptyException, IOException {
 		
-		Session session = sessionService.findById(token);
-		Account account = accountService.findById(session.getAccountId());
+		Account account = accountService.getAccountByJWT(authorization);
 		recipe = recipeService.findByIdAndAccountId(id, account.getId());
-		
-		if(recipe == null)
-			throw new NoResultException();
-		
 		recipe.setTitle(title);
 		recipe.setIngredients(ingredients);
 		
@@ -160,26 +149,21 @@ public class RecipeRestController {
 		
 	}
 	
-	@PostMapping("/api/recipe/delete/{id}")
-	public ResponseEntity<String> delete(@PathVariable String id, @RequestParam String token) {
+	@GetMapping("/api/recipe/delete/{id}")
+	public ResponseEntity<String> delete(@RequestHeader("Authorization") String authorization, @PathVariable String id) {
 		
 		ResponseEntity<String> response = null;
 		
 		try {
 				
-			Session session = sessionService.findById(token);
-			Account account = accountService.findById(session.getAccountId());
+			Account account = accountService.getAccountByJWT(authorization);
 			Recipe recipe = recipeService.findByIdAndAccountId(id, account.getId());
-			
-			if(recipe == null)
-				throw new NoResultException();
-			
 			recipeStepService.deleteAllByRecipeId(id);
 			recipeService.delete(recipe);
 			imageService.delete(recipe.getImage());
 			response = new ResponseEntity<String>("La recette a bien été supprimée !", HttpStatus.OK);
 		
-		} catch (SessionNotFoundException | AccountNotFoundException e) {
+		} catch (AccountNotFoundException e) {
 
 			response = new ResponseEntity<String>("Vous n'êtes pas connecté !", HttpStatus.NOT_FOUND);
 			
@@ -195,23 +179,18 @@ public class RecipeRestController {
 		
 	}
 	
-	@PostMapping("/api/recipe/author/{id}")
-	public ResponseEntity<Boolean> isAuthor(@PathVariable String id, @RequestParam String token) {
+	@GetMapping("/api/recipe/author/{id}")
+	public ResponseEntity<Boolean> isAuthor(@RequestHeader("Authorization") String authorization, @PathVariable String id) {
 		
 		ResponseEntity<Boolean> response = null;
 		
 		try {
 		
-			Session session = sessionService.findById(token);
-			Account account = accountService.findById(session.getAccountId());
-			Recipe recipe = recipeService.findByIdAndAccountId(id, account.getId());
-			
-			if(recipe == null)
-				throw new NoResultException();
-			
+			Account account = accountService.getAccountByJWT(authorization);
+			recipeService.findByIdAndAccountId(id, account.getId());
 			response = new ResponseEntity<Boolean>(true, HttpStatus.OK);
 			
-		} catch(SessionNotFoundException | AccountNotFoundException | NoResultException e) {
+		} catch(AccountNotFoundException | NoResultException e) {
 			
 			response = new ResponseEntity<Boolean>(false, HttpStatus.NOT_FOUND);
 			

@@ -49,6 +49,7 @@ public class RecipeStepRestController {
 			
 			Account account = accountService.getAccountByJWT(authorization);
 			Recipe recipe = recipeService.findByIdAndAccountId(body.getRecipeId(), account.getId());
+			recipeStepService.deleteAllByRecipeId(recipe.getId());
 			recipeStepService.saveAll(recipe.getId(), body.getSteps());
 			response = new ResponseEntity<String>(body.getRecipeId(), HttpStatus.OK);
 		

@@ -5,12 +5,14 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.NoResultException;
 import mg.breadOnBoard.model.Recipe;
 import mg.breadOnBoard.repository.RecipeRepository;
 
 @Service
+@Transactional
 public class RecipeService {
 	
 	@Autowired
