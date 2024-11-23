@@ -83,18 +83,22 @@ public class RecipeRestController {
 		try {
 			
 			Account account = accountService.getAccountByJWT(authorization);
+			imageService.upload(image);
 			recipe.setAccountId(account.getId());
 			recipe.setTitle(title);
 			recipe.setImage(image.getOriginalFilename());
 			recipe.setIngredients(ingredients);
 			recipe = recipeService.save(recipe);
-			imageService.upload(image);
 			
 			response = new ResponseEntity<String>(recipe.getId(), HttpStatus.OK);
 			
-		} catch (FileIsEmptyException | IOException e) {
+		} catch (FileIsEmptyException e) {
 
-			response = new ResponseEntity<String>(recipe.getId(), HttpStatus.INTERNAL_SERVER_ERROR);
+			response = new ResponseEntity<String>("Une image est requise pour créer une recette !", HttpStatus.NOT_FOUND);
+			
+		} catch(IOException e) {
+			
+			response = new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 			
 		} catch (AccountNotFoundException e) {
 
