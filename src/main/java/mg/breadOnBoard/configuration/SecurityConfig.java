@@ -37,7 +37,7 @@ public class SecurityConfig {
 	private String secretKey = "shbdkfjhabsjkdhfvajkshdvfjkahsvdlfjhavdssvkdvaksdjfahsadvjkfhavk";
 	
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         return http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         			.csrf(csrf -> csrf.disable())
@@ -75,7 +75,7 @@ public class SecurityConfig {
 	}
 	
 	@Bean
-	public AuthenticationManager authenticationManager(UserDetailsService userDetailsService) {
+	AuthenticationManager authenticationManager(UserDetailsService userDetailsService) {
 		
 		DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
 		daoAuthenticationProvider.setUserDetailsService(userDetailsService);
