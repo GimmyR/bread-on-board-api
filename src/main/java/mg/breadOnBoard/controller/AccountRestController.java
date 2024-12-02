@@ -6,10 +6,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import mg.breadOnBoard.model.Account;
+import mg.breadOnBoard.service.AccountNotFoundException;
 import mg.breadOnBoard.service.AccountService;
 
 @RestController
@@ -34,6 +38,24 @@ public class AccountRestController {
 		} catch(AuthenticationException e) {
 			
 			response = new ResponseEntity<String>("Connexion impossible", HttpStatus.UNAUTHORIZED);
+			
+		} return response;
+		
+	}
+	
+	@GetMapping("/api/account/username/{id}")
+	public ResponseEntity<String> getUsername(@PathVariable String id) {
+		
+		ResponseEntity<String> response = null;
+		
+		try {
+			
+			Account account = accountService.findById(id);
+			response = new ResponseEntity<String>(account.getUsername(), HttpStatus.OK);
+			
+		} catch (AccountNotFoundException e) {
+
+			response = new ResponseEntity<String>("Compte introuvable !", HttpStatus.NOT_FOUND);
 			
 		} return response;
 		
