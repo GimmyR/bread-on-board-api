@@ -12,6 +12,8 @@ Look at the [Spring Boot Documentation](https://docs.spring.io/spring-boot/index
 
 Set up server port, log level, database and more configs in `application.properties`.
 
+Find database schema in `schema.sql`.
+
 ## Build project
 
 ```bash
